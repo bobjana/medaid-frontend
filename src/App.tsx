@@ -40,12 +40,14 @@ function App() {
   });
 
   const { watch, setValue, handleSubmit, reset } = methods;
-  const formData = watch();
 
-  // Auto-save to localStorage
+  // Auto-save to localStorage using react-hook-form's subscription
   useEffect(() => {
-    setSavedData(formData);
-  }, [formData, setSavedData]);
+    const subscription = watch((data) => {
+      setSavedData(data as QuestionnaireData);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, setSavedData]);
 
   const currentIndex = sectionOrder.indexOf(currentSection);
   const progress = ((currentIndex + 1) / sectionOrder.length) * 100;
@@ -105,7 +107,7 @@ function App() {
       case 'family-planning':
         return <FamilyPlanning />;
       case 'review':
-        return <Review onEditSection={handleEditSection} onSubmit={handleSubmit(handleSubmitForm)} />;
+        return <Review onEditSection={handleEditSection} />;
       default:
         return <Introduction onStart={handleStart} />;
     }

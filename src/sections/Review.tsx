@@ -10,10 +10,9 @@ import type { QuestionnaireData, Section } from '@/types';
 
 interface ReviewProps {
   onEditSection: (section: Section) => void;
-  onSubmit: () => void;
 }
 
-export function Review({ onEditSection, onSubmit }: ReviewProps) {
+export function Review({ onEditSection }: ReviewProps) {
   const { t } = useTranslation();
   const { watch, control } = useFormContext<QuestionnaireData>();
 
@@ -86,7 +85,7 @@ export function Review({ onEditSection, onSubmit }: ReviewProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Summary</CardTitle>
+          <CardTitle>{t('review.summary')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {sections.map((section, index) => (
@@ -150,14 +149,6 @@ export function Review({ onEditSection, onSubmit }: ReviewProps) {
         >
           <FileText className="w-4 h-4 mr-2" />
           {t('review.printSummary')}
-        </Button>
-        <Button
-          type="button"
-          onClick={onSubmit}
-          className="flex-1"
-          disabled={!data.locationConfirmed}
-        >
-          {t('navigation.submit')}
         </Button>
       </div>
     </div>
