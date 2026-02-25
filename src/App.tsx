@@ -13,7 +13,7 @@ import { questionnaireSchema } from '@/schema';
 import type { QuestionnaireData, Section } from '@/types';
 import { initialData, sectionOrder } from '@/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { LanguageSelector } from '@/components/LanguageSelector';
+
 
 import { Introduction } from '@/sections/Introduction';
 import { Demographics } from '@/sections/Demographics';
@@ -127,7 +127,7 @@ function App() {
               <h1 className="text-2xl font-bold">{t('app.title')}</h1>
               <p className="text-muted-foreground text-sm">{t('app.subtitle')}</p>
             </div>
-            <LanguageSelector />
+
           </div>
 
           {/* Progress */}

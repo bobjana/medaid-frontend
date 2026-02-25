@@ -14,34 +14,34 @@ import type { QuestionnaireData, CoverageType, Relationship } from '@/types';
 export function Demographics() {
   const { t } = useTranslation();
   const { register, control, watch, setValue, formState: { errors } } = useFormContext<QuestionnaireData>();
-  
+
   const coverageType = watch('coverageType');
   const dependents = watch('dependents') || [];
 
   const handleCoverageChange = (value: string) => {
     const newCoverage = value as CoverageType;
     setValue('coverageType', newCoverage);
-    
+
     if (newCoverage === 'just_me') {
       setValue('dependents', []);
       setValue('numberOfChildren', 0);
     } else if (newCoverage === 'me_spouse') {
-      setValue('dependents', [{ 
-        id: '1', 
-        name: '', 
-        dateOfBirth: '', 
-        relationship: 'spouse', 
-        hasChronicCondition: false 
+      setValue('dependents', [{
+        id: '1',
+        name: '',
+        dateOfBirth: '',
+        relationship: 'spouse',
+        hasChronicCondition: false
       }]);
       setValue('numberOfChildren', 0);
     } else if (newCoverage === 'me_children') {
       setValue('numberOfChildren', 1);
-      setValue('dependents', [{ 
-        id: '1', 
-        name: '', 
-        dateOfBirth: '', 
-        relationship: 'child', 
-        hasChronicCondition: false 
+      setValue('dependents', [{
+        id: '1',
+        name: '',
+        dateOfBirth: '',
+        relationship: 'child',
+        hasChronicCondition: false
       }]);
     } else if (newCoverage === 'me_spouse_children') {
       setValue('numberOfChildren', 1);
@@ -56,7 +56,7 @@ export function Demographics() {
     setValue('numberOfChildren', count);
     const currentDependents = watch('dependents') || [];
     const spouseDependent = currentDependents.find(d => d.relationship === 'spouse');
-    
+
     const newDependents = spouseDependent ? [spouseDependent] : [];
     for (let i = 0; i < count; i++) {
       newDependents.push({
@@ -80,14 +80,14 @@ export function Demographics() {
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-bold">{t('demographics.title')}</h2>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>{t('demographics.personalDetails')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div className="space-y-2 md:col-span-6">
               <Label>{t('demographics.fullName')}</Label>
               <Input {...register('personalDetails.fullName')} />
               {errors.personalDetails?.fullName && (
@@ -95,7 +95,7 @@ export function Demographics() {
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-6">
               <Label>{t('demographics.idNumber')}</Label>
               <Input {...register('personalDetails.idNumber')} />
               {errors.personalDetails?.idNumber && (
@@ -103,19 +103,19 @@ export function Demographics() {
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-6">
               <Label>{t('demographics.dateOfBirth')}</Label>
               <Input type="date" {...register('personalDetails.dateOfBirth')} />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-3">
               <Label>{t('demographics.gender')}</Label>
               <Controller
                 name="personalDetails.gender"
                 control={control}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="male">{t('demographics.genderOptions.male')}</SelectItem>
                       <SelectItem value="female">{t('demographics.genderOptions.female')}</SelectItem>
@@ -127,27 +127,25 @@ export function Demographics() {
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-3">
               <Label>{t('demographics.language')}</Label>
               <LanguageSelector />
             </div>
-            </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-6">
               <Label>{t('demographics.email')}</Label>
               <Input type="email" {...register('personalDetails.email')} />
-            </div>
-            <div className="space-y-2">
-              <Label>{t('demographics.email')}</Label>
-
-            <div className="space-y-2">
-              <Label>{t('demographics.email')}</Label>
-              <Input type="email" {...register('personalDetails.email')} />
+              {errors.personalDetails?.email && (
+                <p className="text-sm text-red-500">{errors.personalDetails.email.message}</p>
+              )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-6">
               <Label>{t('demographics.phone')}</Label>
               <Input type="tel" {...register('personalDetails.phone')} />
+              {errors.personalDetails?.phone && (
+                <p className="text-sm text-red-500">{errors.personalDetails.phone.message}</p>
+              )}
             </div>
           </div>
 
@@ -228,8 +226,8 @@ export function Demographics() {
               <Card key={dependent.id} className="border">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">
-                    {dependent.relationship === 'spouse' 
-                      ? t('demographics.dependents.spouse') 
+                    {dependent.relationship === 'spouse'
+                      ? t('demographics.dependents.spouse')
                       : `${t('demographics.dependents.child')} ${index + (coverageType === 'me_spouse_children' ? 0 : 1)}`}
                   </CardTitle>
                 </CardHeader>
@@ -239,7 +237,7 @@ export function Demographics() {
                       <Label>{t('demographics.dependents.name')}</Label>
                       <Input {...register(`dependents.${index}.name`)} />
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label>{t('demographics.dependents.dateOfBirth')}</Label>
                       <Input type="date" {...register(`dependents.${index}.dateOfBirth`)} />
@@ -266,7 +264,7 @@ export function Demographics() {
                   {dependent.hasChronicCondition && (
                     <div className="space-y-2">
                       <Label>{t('demographics.dependents.conditionName')}</Label>
-                      <Input 
+                      <Input
                         {...register(`dependents.${index}.chronicConditionName`)}
                         placeholder="e.g., Diabetes Type 1, Asthma"
                       />
