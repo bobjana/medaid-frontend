@@ -49,6 +49,7 @@ const resources = {
         dateOfBirth: 'Date of Birth',
         gender: 'Gender',
         email: 'Email',
+        language: 'Language',
         phone: 'Phone',
         address: 'Home Address',
         genderOptions: {
@@ -272,6 +273,7 @@ const resources = {
         dateOfBirth: 'Geboortedatum',
         gender: 'Geslag',
         email: 'E-pos',
+        language: 'Taal',
         phone: 'Foon',
         address: 'Huisadres',
         genderOptions: {

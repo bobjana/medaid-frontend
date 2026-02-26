@@ -4,7 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { LanguageSelector } from '@/components/LanguageSelector';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { QuestionnaireData, CoverageType, Relationship } from '@/types';
@@ -124,6 +126,19 @@ export function Demographics() {
                 )}
               />
             </div>
+
+            <div className="space-y-2">
+              <Label>{t('demographics.language')}</Label>
+              <LanguageSelector />
+            </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>{t('demographics.email')}</Label>
+              <Input type="email" {...register('personalDetails.email')} />
+            </div>
+            <div className="space-y-2">
+              <Label>{t('demographics.email')}</Label>
 
             <div className="space-y-2">
               <Label>{t('demographics.email')}</Label>
