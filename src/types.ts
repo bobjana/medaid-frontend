@@ -11,6 +11,7 @@ export type BudgetRange = 'under_2000' | '2000_4000' | '4000_6000' | '6000_8000'
 export type DayToDayPreference = 'savings_account' | 'unlimited_cover' | 'out_of_pocket' | 'not_sure';
 export type NetworkPreference = 'yes_lowest_cost' | 'maybe_depends' | 'no_need_freedom';
 export type CoPaymentPreference = 'yes_lower_cost' | 'no_comprehensive';
+export type HospitalGroup = 'netcare' | 'mediclinic' | 'life_healthcare' | 'other';
 export type BenefitPriority = 'critical' | 'important' | 'nice_to_have' | 'not_important';
 export type PregnancyStatus = 'currently_pregnant' | 'planning_12_months' | 'planning_future' | 'not_planning';
 export type BirthPreference = 'hospital' | 'home_midwife' | 'not_sure';
@@ -55,7 +56,12 @@ export interface QuestionnaireData {
   doctorVisits: DoctorVisits;
   hospitalAdmissions: HospitalAdmissions;
   highCostDental: boolean;
-  preferredProviders: string;
+  preferredProviders: {
+    hasPreferredProviders: boolean;
+    hospitalGroup?: HospitalGroup;
+    specificHospitals?: string[];
+    preferredSpecialists?: string[];
+  };
   budgetRange: BudgetRange;
   dayToDayPreference: DayToDayPreference;
   networkPreference: NetworkPreference;
@@ -121,7 +127,12 @@ export const initialData: QuestionnaireData = {
   doctorVisits: '0',
   hospitalAdmissions: '0',
   highCostDental: false,
-  preferredProviders: '',
+  preferredProviders: {
+    hasPreferredProviders: false,
+    hospitalGroup: undefined,
+    specificHospitals: [],
+    preferredSpecialists: [],
+  },
   budgetRange: 'no_budget',
   dayToDayPreference: 'not_sure',
   networkPreference: 'maybe_depends',

@@ -49,7 +49,12 @@ export const questionnaireSchema: z.ZodType<QuestionnaireData> = z.object({
   doctorVisits: z.enum(['0', '1-3', '4-6', '7+']),
   hospitalAdmissions: z.enum(['0', '1', '2', '3+']),
   highCostDental: z.boolean(),
-  preferredProviders: z.string(),
+  preferredProviders: z.object({
+    hasPreferredProviders: z.boolean(),
+    hospitalGroup: z.enum(['netcare', 'mediclinic', 'life_healthcare', 'other']).optional(),
+    specificHospitals: z.array(z.string()).optional(),
+    preferredSpecialists: z.array(z.string()).optional(),
+  }),
   budgetRange: z.enum(['under_2000', '2000_4000', '4000_6000', '6000_8000', '8000_12000', 'over_12000', 'no_budget']),
   dayToDayPreference: z.enum(['savings_account', 'unlimited_cover', 'out_of_pocket', 'not_sure']),
   networkPreference: z.enum(['yes_lowest_cost', 'maybe_depends', 'no_need_freedom']),
