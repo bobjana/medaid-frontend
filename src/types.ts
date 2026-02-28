@@ -71,6 +71,13 @@ export interface QuestionnaireData {
   pregnancyStatus: PregnancyStatus;
   birthPreference?: BirthPreference;
   locationConfirmed: boolean;
+  location?: {
+    address: string;
+    lat: number;
+    lng: number;
+    city?: string;
+    province?: string;
+  };
 }
 
 export type Section = 
