@@ -27,10 +27,29 @@ export interface Citation {
  * Events emitted by the chat stream, after the raw Vertex/Agent-Engine stream
  * has been parsed and re-framed as NDJSON for the browser.
  */
+export interface PlanOption {
+  id: string;
+  name: string;
+}
+
+export interface SchemeOption {
+  slug: string;
+  name: string;
+  plans: PlanOption[];
+}
+
+export interface ContextOptions {
+  type: 'scheme_selection' | 'plan_selection';
+  schemes?: SchemeOption[];
+  plans?: PlanOption[];
+  scheme?: string;
+}
+
 export type ChatEvent =
   | { type: 'text'; delta: string }
   | { type: 'citations'; citations: Citation[] }
   | { type: 'session'; sessionId: string }
+  | { type: 'context_options'; options: ContextOptions }
   | { type: 'error'; message: string }
   | { type: 'done' };
 

@@ -46,7 +46,7 @@ function ndjsonResponse(
   } as unknown as Response;
 }
 
-async function collectEvents(input: AgentQueryInput = { userId: 'test-user', message: 'hello' }): Promise<AgentEvent[]> {
+async function collectEvents(input: AgentQueryInput = { userId: 'test-user', message: 'hello', sessionId: 'test-session-abc' }): Promise<AgentEvent[]> {
   const events: AgentEvent[] = [];
   for await (const ev of streamAgentQuery(input)) {
     events.push(ev);
@@ -207,9 +207,10 @@ describe('streamAgentQuery error handling', () => {
 
     const events = await collectEvents();
 
-    expect(events).toHaveLength(1);
-    expect(events[0]).toEqual({ type: 'error', message: expect.stringContaining('500') });
-    expect(events[0]).toEqual({ type: 'error', message: expect.stringContaining('Internal Server Error') });
+    expect(events).toHaveLength(2);
+    expect(events[0]).toEqual({ type: 'session', sessionId: 'test-session-abc' });
+    expect(events[1]).toEqual({ type: 'error', message: expect.stringContaining('500') });
+    expect(events[1]).toEqual({ type: 'error', message: expect.stringContaining('Internal Server Error') });
   });
 
   it('emits an error event when an OK response has no body', async () => {
@@ -222,9 +223,10 @@ describe('streamAgentQuery error handling', () => {
 
     const events = await collectEvents();
 
-    expect(events).toHaveLength(1);
-    expect(events[0].type).toBe('error');
-    expect((events[0] as { message: string }).message).toContain('200');
+    expect(events).toHaveLength(2);
+    expect(events[0].type).toBe('session');
+    expect(events[1].type).toBe('error');
+    expect((events[1] as { message: string }).message).toContain('200');
   });
 });
 

@@ -62,11 +62,17 @@ export function MarkdownMessage({ content, className = '' }: MarkdownMessageProp
             </blockquote>
           ),
           hr: () => <hr className="border-border my-3" />,
-          pre: ({ children }) => (
-            <pre className="bg-muted-foreground/10 rounded-lg p-3 overflow-x-auto my-2">
-              {children}
-            </pre>
-          ),
+          pre: ({ children }) => {
+            const text = extractText(children);
+            if (text.includes('scheme_selection') || text.includes('plan_selection')) {
+              return null;
+            }
+            return (
+              <pre className="bg-muted-foreground/10 rounded-lg p-3 overflow-x-auto my-2">
+                {children}
+              </pre>
+            );
+          },
           code: ({ className, children }) => {
             const isBlock = className?.includes('language-') || String(children).includes('\n');
             if (isBlock) {
@@ -96,4 +102,15 @@ export function MarkdownMessage({ content, className = '' }: MarkdownMessageProp
       </ReactMarkdown>
     </div>
   );
+}
+
+function extractText(node: unknown): string {
+  if (typeof node === 'string') return node;
+  if (typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(extractText).join('');
+  if (node && typeof node === 'object' && 'props' in (node as Record<string, unknown>)) {
+    const props = (node as { props?: { children?: unknown } }).props;
+    return extractText(props?.children);
+  }
+  return '';
 }

@@ -1,8 +1,31 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { streamMessage } from './chat';
 import type { ChatEvent, ChatRequest } from '@/types';
 
+const store: Record<string, string> = {};
+const localStorageMock = {
+  getItem: vi.fn((k: string) => store[k] ?? null),
+  setItem: vi.fn((k: string, v: string) => { store[k] = v; }),
+  removeItem: vi.fn((k: string) => { delete store[k]; }),
+  clear: vi.fn(() => { Object.keys(store).forEach((k) => delete store[k]); }),
+  get length() { return Object.keys(store).length; },
+  key: vi.fn((i: number) => Object.keys(store)[i] ?? null),
+};
+
+let originalLocalStorage: typeof globalThis.localStorage | undefined;
+
+beforeEach(() => {
+  originalLocalStorage = globalThis.localStorage;
+  Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock, writable: true, configurable: true });
+  localStorageMock.getItem.mockClear();
+  localStorageMock.setItem.mockClear();
+  Object.keys(store).forEach((k) => delete store[k]);
+});
+
 afterEach(() => {
+  if (originalLocalStorage !== undefined) {
+    Object.defineProperty(globalThis, 'localStorage', { value: originalLocalStorage, writable: true, configurable: true });
+  }
   vi.restoreAllMocks();
 });
 
