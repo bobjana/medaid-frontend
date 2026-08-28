@@ -4,7 +4,7 @@ import type { ContextOptions } from '@/types';
 
 interface ContextSelectorProps {
   options: ContextOptions;
-  onSelect: (selection: string) => void;
+  onSelect: (selection: string, type: 'scheme' | 'plan') => void;
 }
 
 export function ContextSelector({ options, onSelect }: ContextSelectorProps) {
@@ -19,7 +19,7 @@ export function ContextSelector({ options, onSelect }: ContextSelectorProps) {
             <button
               key={scheme.slug}
               type="button"
-              onClick={() => onSelect(scheme.name)}
+              onClick={() => onSelect(scheme.name, 'scheme')}
               className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors"
             >
               {scheme.name}
@@ -41,7 +41,7 @@ export function ContextSelector({ options, onSelect }: ContextSelectorProps) {
             <button
               key={plan.id}
               type="button"
-              onClick={() => onSelect(plan.name)}
+              onClick={() => onSelect(plan.name, 'plan')}
               className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors"
             >
               {plan.name}

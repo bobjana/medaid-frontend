@@ -1,4 +1,4 @@
-import type { Citation, ContextOptions } from '@/types';
+import type { Citation, ContextOptions, PlanOption, SchemeOption } from '@/types';
 
 export function extractText(event: unknown): string {
   if (!event || typeof event !== 'object') return '';
@@ -50,7 +50,7 @@ export function extractCitations(event: unknown): Citation[] {
   return citations;
 }
 
-const CONTEXT_OPTIONS_RE = /```json\s*(\{[\s\S]*?"type"\s*:\s*"(?:scheme_selection|plan_selection)"[\s\S]*?\})\s*```/;
+const JSON_FENCE_RE = /```(?:json)?\s*(\{[\s\S]*\})\s*```/;
 
 export function extractContextOptions(event: unknown): ContextOptions | null {
   if (!event || typeof event !== 'object') return null;
@@ -64,15 +64,32 @@ export function extractContextOptions(event: unknown): ContextOptions | null {
     const text = (p as { text?: unknown }).text;
     if (typeof text !== 'string') continue;
 
-    const match = CONTEXT_OPTIONS_RE.exec(text);
+    const match = JSON_FENCE_RE.exec(text);
     if (!match) continue;
 
+    let parsed: unknown;
     try {
-      const parsed = JSON.parse(match[1]);
-      if (parsed.type === 'scheme_selection' || parsed.type === 'plan_selection') {
-        return parsed as ContextOptions;
-      }
-    } catch { /* ignore malformed JSON */ }
+      parsed = JSON.parse(match[1]);
+    } catch { continue; }
+    if (!parsed || typeof parsed !== 'object') continue;
+
+    const obj = parsed as { type?: unknown; schemes?: unknown; plans?: unknown; scheme?: unknown };
+    const type =
+      obj.type === 'scheme_selection' || obj.type === 'plan_selection'
+        ? obj.type
+        : Array.isArray(obj.schemes) && obj.schemes.length > 0
+          ? 'scheme_selection'
+          : Array.isArray(obj.plans) && obj.plans.length > 0
+            ? 'plan_selection'
+            : null;
+    if (!type) continue;
+
+    return {
+      type,
+      schemes: Array.isArray(obj.schemes) ? (obj.schemes as SchemeOption[]) : undefined,
+      plans: Array.isArray(obj.plans) ? (obj.plans as PlanOption[]) : undefined,
+      scheme: typeof obj.scheme === 'string' ? obj.scheme : undefined,
+    };
   }
   return null;
 }

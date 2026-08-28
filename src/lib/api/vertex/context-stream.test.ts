@@ -68,6 +68,55 @@ describe('extractContextOptions from streamed text', () => {
     expect(options.schemes).toHaveLength(2);
   });
 
+  it('infers scheme_selection from a type-less schemes block (agent output)', async () => {
+    const agentJson = JSON.stringify({
+      schemes: [
+        {
+          slug: 'bonitas',
+          name: 'Bonitas Medical Fund',
+          plans: [{ id: 'boncomplete', name: 'BonComplete' }],
+        },
+      ],
+    });
+    const markdown = `**Available schemes**\n\n\`\`\`json\n${agentJson}\n\`\`\``;
+    const line = JSON.stringify({ content: { parts: [{ text: markdown }] } });
+    globalThis.fetch = vi.fn().mockResolvedValue(ndjsonResponse([line]));
+
+    const events = await collectEvents();
+    const options = (
+      events.find((e) => e.type === 'context_options') as
+        | { options: { type: string; schemes: { slug: string; plans: unknown[] }[] } }
+        | undefined
+    )?.options;
+
+    expect(options?.type).toBe('scheme_selection');
+    expect(options?.schemes).toHaveLength(1);
+    expect(options?.schemes?.[0].slug).toBe('bonitas');
+    expect(options?.schemes?.[0].plans).toHaveLength(1);
+  });
+
+  it('infers plan_selection from a type-less plans block', async () => {
+    const agentJson = JSON.stringify({
+      plans: [
+        { id: 'boncomplete', name: 'BonComplete' },
+        { id: 'bonprime', name: 'BonPrime' },
+      ],
+    });
+    const markdown = `Which plan?\n\n\`\`\`json\n${agentJson}\n\`\`\``;
+    const line = JSON.stringify({ content: { parts: [{ text: markdown }] } });
+    globalThis.fetch = vi.fn().mockResolvedValue(ndjsonResponse([line]));
+
+    const events = await collectEvents();
+    const options = (
+      events.find((e) => e.type === 'context_options') as
+        | { options: { type: string; plans: { id: string }[] } }
+        | undefined
+    )?.options;
+
+    expect(options?.type).toBe('plan_selection');
+    expect(options?.plans).toHaveLength(2);
+  });
+
   it('ignores unrelated json code blocks', async () => {
     const line = JSON.stringify({
       content: { parts: [{ text: '```json\n{"foo": "bar"}\n```' }] },

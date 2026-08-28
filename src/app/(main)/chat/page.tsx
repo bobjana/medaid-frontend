@@ -13,7 +13,7 @@ import { Citations } from '@/components/chat/Citations';
 import { ContextSelector } from '@/components/chat/ContextSelector';
 
 const SESSION_KEY = 'medaid:session-id';
-const JSON_BLOCK_RE = /```json\s*\{[\s\S]*?"type"\s*:\s*"(?:scheme_selection|plan_selection)"[\s\S]*?\}\s*```/g;
+const JSON_BLOCK_RE = /```(?:json)?\s*\{[\s\S]*?"(?:schemes|plans|type)"[\s\S]*?\}\s*```/g;
 
 function getStoredSessionId(): string | undefined {
   if (typeof window === 'undefined') return undefined;
@@ -57,7 +57,28 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  function handleContextSelect(selection: string) {
+  function handleContextSelect(selection: string, type: 'scheme' | 'plan') {
+    if (type === 'scheme') {
+      const scheme = contextOptions?.schemes?.find((s) => s.name === selection);
+      if (scheme && scheme.plans.length > 0) {
+        const planOptions: ContextOptions = {
+          type: 'plan_selection',
+          plans: scheme.plans,
+          scheme: scheme.name,
+        };
+        setContextOptions(planOptions);
+        setActiveContext({ scheme: scheme.name });
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.contextOptions?.type === 'scheme_selection'
+              ? { ...m, contextOptions: planOptions }
+              : m,
+          ),
+        );
+      } else {
+        setActiveContext({ scheme: selection });
+      }
+    }
     sendMessage(selection);
   }
 

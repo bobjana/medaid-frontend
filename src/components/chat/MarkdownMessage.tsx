@@ -64,7 +64,12 @@ export function MarkdownMessage({ content, className = '' }: MarkdownMessageProp
           hr: () => <hr className="border-border my-3" />,
           pre: ({ children }) => {
             const text = extractText(children);
-            if (text.includes('scheme_selection') || text.includes('plan_selection')) {
+            if (
+              text.includes('scheme_selection') ||
+              text.includes('plan_selection') ||
+              text.includes('"schemes"') ||
+              text.includes('"plans"')
+            ) {
               return null;
             }
             return (
