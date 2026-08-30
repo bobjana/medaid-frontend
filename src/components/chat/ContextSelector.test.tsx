@@ -42,7 +42,7 @@ describe('ContextSelector', () => {
     render(<ContextSelector options={SCHEME_OPTIONS} onSelect={onSelect} />);
 
     fireEvent.click(screen.getByText('Discovery Health Medical Scheme'));
-    expect(onSelect).toHaveBeenCalledWith('Discovery Health Medical Scheme');
+    expect(onSelect).toHaveBeenCalledWith('Discovery Health Medical Scheme', 'scheme');
   });
 
   it('renders plan chips', () => {
@@ -59,7 +59,7 @@ describe('ContextSelector', () => {
     render(<ContextSelector options={PLAN_OPTIONS} onSelect={onSelect} />);
 
     fireEvent.click(screen.getByText('Executive Plan'));
-    expect(onSelect).toHaveBeenCalledWith('Executive Plan');
+    expect(onSelect).toHaveBeenCalledWith('Executive Plan', 'plan');
   });
 
   it('renders nothing for unknown option types', () => {
