@@ -22,3 +22,19 @@ export async function createLocalSession(userId: string, sessionId: string): Pro
     `ADK CreateSession failed: ${resp.status} ${resp.statusText}${detail ? ` — ${detail}` : ''}`,
   );
 }
+
+export async function resetSessionContext(userId: string, sessionId: string): Promise<void> {
+  const url = `${getLocalBackendUrl()}/apps/${getAdkAppName()}/users/${encodeURIComponent(userId)}/sessions/${encodeURIComponent(sessionId)}`;
+  const resp = await fetch(url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      state_delta: { selected_scheme: null, selected_plan: null },
+    }),
+  });
+  if (resp.ok || resp.status === 404) return;
+  const detail = await resp.text().catch(() => '');
+  throw new Error(
+    `ADK resetSessionContext failed: ${resp.status} ${resp.statusText}${detail ? ` — ${detail}` : ''}`,
+  );
+}

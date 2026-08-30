@@ -1,1 +1,1 @@
-export { streamMessage } from './chat';
+export { getOrCreateUserId, streamMessage } from './chat';

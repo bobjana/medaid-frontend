@@ -1,7 +1,7 @@
 import type { ChatEvent, ChatRequest } from '@/types';
 import { randomUUID } from '@/lib/utils';
 
-function getOrCreateUserId(): string {
+export function getOrCreateUserId(): string {
   if (typeof window === 'undefined') return 'server';
   const key = 'medaid:user-id';
   let id = localStorage.getItem(key);

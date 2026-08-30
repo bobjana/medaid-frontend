@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect, FormEvent } from 'react';
-import { Send, Loader2, Sparkles, Stethoscope } from 'lucide-react';
+import { Send, Loader2, Stethoscope, RotateCcw, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import type { Citation, ContextOptions } from '@/types';
-import { streamMessage } from '@/lib/api';
+import { getOrCreateUserId, streamMessage } from '@/lib/api';
 import { randomUUID } from '@/lib/utils';
 import { MarkdownMessage } from '@/components/chat/MarkdownMessage';
 import { Citations } from '@/components/chat/Citations';
@@ -14,6 +14,11 @@ import { ContextSelector } from '@/components/chat/ContextSelector';
 
 const SESSION_KEY = 'medaid:session-id';
 const JSON_BLOCK_RE = /```(?:json)?\s*\{[\s\S]*?"(?:schemes|plans|type)"[\s\S]*?\}\s*```/g;
+
+const SCHEME_LABELS: Record<string, string> = {
+  bonitas: 'Bonitas',
+  discovery: 'Discovery',
+};
 
 function getStoredSessionId(): string | undefined {
   if (typeof window === 'undefined') return undefined;
@@ -64,10 +69,10 @@ export default function ChatPage() {
         const planOptions: ContextOptions = {
           type: 'plan_selection',
           plans: scheme.plans,
-          scheme: scheme.name,
+          scheme: scheme.slug,
         };
         setContextOptions(planOptions);
-        setActiveContext({ scheme: scheme.name });
+        setActiveContext({ scheme: scheme.slug });
         setMessages((prev) =>
           prev.map((m) =>
             m.contextOptions?.type === 'scheme_selection'
@@ -76,7 +81,7 @@ export default function ChatPage() {
           ),
         );
       } else {
-        setActiveContext({ scheme: selection });
+        setActiveContext({ scheme: scheme?.slug ?? selection.toLowerCase() });
       }
     }
     sendMessage(selection);
@@ -142,7 +147,7 @@ export default function ChatPage() {
           if (event.options.type === 'scheme_selection' && event.options.schemes) {
             const firstScheme = event.options.schemes[0];
             if (firstScheme) {
-              setActiveContext({ scheme: firstScheme.name });
+              setActiveContext({ scheme: firstScheme.slug });
             }
           }
         } else if (event.type === 'error') {
@@ -174,6 +179,37 @@ export default function ChatPage() {
     sendMessage(input);
   }
 
+  function resetConversation() {
+    localStorage.removeItem(SESSION_KEY);
+    sessionIdRef.current = undefined;
+    setMessages([WELCOME_MESSAGE]);
+    setContextOptions(null);
+    setActiveContext({});
+    setError(null);
+  }
+
+  async function clearContext() {
+    setContextOptions(null);
+    setActiveContext({});
+    setMessages((prev) =>
+      prev.map((m) => (m.contextOptions ? { ...m, contextOptions: undefined } : m)),
+    );
+    const sessionId = sessionIdRef.current;
+    if (!sessionId) return;
+    try {
+      await fetch('/api/chat/reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': getOrCreateUserId(),
+        },
+        body: JSON.stringify({ sessionId }),
+      });
+    } catch {
+      return;
+    }
+  }
+
   const canSend = input.trim().length > 0 && !loading;
 
   return (
@@ -194,16 +230,30 @@ export default function ChatPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={resetConversation}
+              title="Start a new conversation"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              New chat
+            </button>
             {activeContext.scheme && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
-                {activeContext.scheme}
+                {SCHEME_LABELS[activeContext.scheme] ?? activeContext.scheme}
                 {activeContext.plan && ` › ${activeContext.plan}`}
+                <button
+                  type="button"
+                  onClick={clearContext}
+                  title="Clear scheme context"
+                  aria-label="Clear scheme context"
+                  className="ml-0.5 -mr-1 p-0.5 rounded-full hover:bg-primary/20 transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
               </span>
             )}
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
-              <Sparkles className="w-3.5 h-3.5" />
-              AI Active
-            </span>
           </div>
         </CardHeader>
 
