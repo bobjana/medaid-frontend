@@ -64,7 +64,7 @@ describe('ContextSelector', () => {
 
   it('renders nothing for unknown option types', () => {
     const { container } = render(
-      <ContextSelector options={{ type: 'unknown' } as ContextOptions} onSelect={vi.fn()} />,
+      <ContextSelector options={{ type: 'unknown' } as unknown as ContextOptions} onSelect={vi.fn()} />,
     );
     expect(container).toBeEmptyDOMElement();
   });
